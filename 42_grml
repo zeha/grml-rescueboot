@@ -4,6 +4,7 @@
 # Authors:       Grml team (grml.org), (c) Andreas Gredler <jimmy@grml.org>, Michael Prokop <mika@grml.org>
 # License:       This file is licensed under the GPL v2+.
 ################################################################################
+# shellcheck shell=dash
 
 set -e
 
