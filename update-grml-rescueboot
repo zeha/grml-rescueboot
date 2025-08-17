@@ -42,7 +42,7 @@ usage() {
   echo "Usage: $(basename "$0") [-f] [-t <small|full>]"
 }
 
-while getopts ":a:t:fh" opt ; do
+while getopts ":t:fh" opt ; do
   case ${opt} in
     t)
       if [ "${OPTARG}" = "full" ] || [ "${OPTARG}" = "small" ] ; then
