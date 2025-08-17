@@ -23,8 +23,13 @@ jobs:
         run: |
           VERSION="${{ steps.version.outputs.version }}"
 
-          # Extract changelog for this specific version
-          CHANGES=$(dpkg-parsechangelog -l debian/changelog --since "${VERSION}" --until "${VERSION}" --show-field Changes)
+          # Extract and clean changelog for this specific version
+          CHANGES=$(dpkg-parsechangelog -l debian/changelog --since "${VERSION}" --until "${VERSION}" --show-field Changes | \
+            sed 's/^[[:space:]]*\*[[:space:]]*$//' | \
+            sed 's/^[[:space:]]*\.[[:space:]]*$//' | \
+            sed '/^[[:space:]]*$/d' | \
+            sed 's/^[[:space:]]*\*[[:space:]]*/- /' | \
+            sed 's/^[[:space:]]*\+[[:space:]]*/  - /')
 
           # Set as output for use in release
           {
