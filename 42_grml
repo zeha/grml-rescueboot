@@ -13,8 +13,10 @@ exec_prefix=${prefix}
 libdir=${exec_prefix}/lib
 
 if [ -r "${libdir}/grub/grub-mkconfig_lib" ] ; then
+  # shellcheck disable=SC1091
   . "${libdir}/grub/grub-mkconfig_lib"
 elif [ -r /usr/share/grub/grub-mkconfig_lib ] ; then # fallback for e.g. Fedora
+  # shellcheck disable=SC1091
   . /usr/share/grub/grub-mkconfig_lib
 else
   echo "Could not locate file grub-mkconfig_lib, please report a bug." >&2
@@ -24,6 +26,7 @@ fi
 ISO_LOCATION="/boot/grml"
 
 if [ -r /etc/default/grml-rescueboot ] ; then
+  # shellcheck disable=SC1091
   . /etc/default/grml-rescueboot
 fi
 
@@ -103,6 +106,7 @@ fi
 for grmliso in $iso_list ; do
   rel_dirname="$(dirname "$(make_system_path_relative_to_its_root "$grmliso")")"
   grml="$(basename "$grmliso")"
+  # shellcheck disable=SC2154 # grub_probe is defined by grub-mkconfig_lib
   device="$("${grub_probe}" -t device "${grmliso}")"
 
   additional_param=""
