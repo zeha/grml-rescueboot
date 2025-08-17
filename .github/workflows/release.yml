@@ -25,7 +25,7 @@ jobs:
 
           # Extract and clean changelog for this specific version
           CHANGES=$(dpkg-parsechangelog -l debian/changelog --since "${VERSION}" --until "${VERSION}" --show-field Changes | \
-            sed '1d' | \
+            sed '/^[a-zA-Z0-9-].*([^)]*)[[:space:]]*.*$/d' | \
             sed 's/^[[:space:]]*\.[[:space:]]*$//' | \
             sed '/^[[:space:]]*$/d' | \
             sed 's/^[[:space:]]*\*[[:space:]]*/- /' | \
