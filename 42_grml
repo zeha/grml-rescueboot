@@ -10,11 +10,10 @@ set -e
 
 prefix=/usr
 exec_prefix=${prefix}
-bindir=${exec_prefix}/bin
 libdir=${exec_prefix}/lib
 
-if [ -r ${libdir}/grub/grub-mkconfig_lib ] ; then
-  . ${libdir}/grub/grub-mkconfig_lib
+if [ -r "${libdir}/grub/grub-mkconfig_lib" ] ; then
+  . "${libdir}/grub/grub-mkconfig_lib"
 elif [ -r /usr/share/grub/grub-mkconfig_lib ] ; then # fallback for e.g. Fedora
   . /usr/share/grub/grub-mkconfig_lib
 else
@@ -32,14 +31,14 @@ resolve_dm_name() {
   retval="$1"
   base=${1##*/}
   for block in /sys/block /sys/class/block ; do
-    [ ! -d ${block}/${base}/dm ] && continue
-    retval="/dev/mapper/$(cat ${block}/${base}/dm/name)"
+    [ ! -d "${block}/${base}/dm" ] && continue
+    retval="/dev/mapper/$(cat "${block}/${base}/dm/name")"
     break
   done
   case "$retval" in
     /dev/dm-*)
     minor=${retval##*-}
-   retval="/dev/mapper/$(dmsetup info -C --noheadings -o name -j 253 -m $minor)"
+   retval="/dev/mapper/$(dmsetup info -C --noheadings -o name -j 253 -m "$minor")"
     ;;
   esac
 
@@ -48,10 +47,10 @@ resolve_dm_name() {
 
 get_dependencies() {
   device=${1}
-  if [ -z ${device} ] ; then
+  if [ -z "${device}" ] ; then
     return
   fi
-  device=$(readlink -f ${device})
+  device=$(readlink -f "${device}")
   case "$device" in
     /dev/mapper/*)
     device="/dev/dm-$(dmsetup info -C --noheadings -o minor "$device")"
@@ -62,19 +61,19 @@ get_dependencies() {
   dependencies=""
   additional_dependencies=""
   for block in /sys/block /sys/class/block ; do
-    [ ! -d ${block}/${base}/slaves ] && continue
-    for file in  ${block}/${base}/slaves/* ; do
+    [ ! -d "${block}/${base}/slaves" ] && continue
+    for file in  "${block}/${base}"/slaves/* ; do
       dep_name="/dev/${file##*/}"
-      dep_name=$(resolve_dm_name ${dep_name})
+      dep_name=$(resolve_dm_name "${dep_name}")
 
       # resolve recursively all dependencies
-      additional_dependencies=$(get_dependencies ${dep_name})
+      additional_dependencies=$(get_dependencies "${dep_name}")
 
       dependencies="$dependencies $additional_dependencies $dep_name"
     done
     break
   done
-  echo $dependencies
+  echo "$dependencies"
 }
 
 get_iso_identifier() {
@@ -102,15 +101,15 @@ if [ -n "${GRUB_SUBMENU}" ] && [ -n "${iso_list}" ] ; then
 fi
 
 for grmliso in $iso_list ; do
-  rel_dirname="$(dirname $(make_system_path_relative_to_its_root $grmliso))"
-  grml="$(basename $grmliso)"
-  device="$(${grub_probe} -t device ${grmliso})"
+  rel_dirname="$(dirname "$(make_system_path_relative_to_its_root "$grmliso")")"
+  grml="$(basename "$grmliso")"
+  device="$("${grub_probe}" -t device "${grmliso}")"
 
   additional_param=""
 
   case "$device" in
     /dev/mapper*|/dev/md*)
-      dependencies=$(get_dependencies ${device})
+      dependencies=$(get_dependencies "${device}")
       dep_string=""
       for dep in $dependencies $device ; do
         case "$dep" in
