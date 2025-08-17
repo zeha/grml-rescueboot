@@ -15,7 +15,7 @@ declare -a missing_packages=()
 for binary in "${!bin_to_pkg[@]}" ; do
   if ! command -v "${binary}" &>/dev/null ; then
     echo "ERROR: Binary $binary not found." >&2
-    missing_packages+=( ${bin_to_pkg[$binary]} )
+    missing_packages+=( "${bin_to_pkg[$binary]}" )
   fi
 done
 
