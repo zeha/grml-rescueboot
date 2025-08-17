@@ -1,3 +1,10 @@
+grml-rescueboot (0.6.9) unstable; urgency=medium
+
+  * [bb48d50] more workflow fixes
+  * [114eaaf] workflow fixes
+
+ -- Chris Hofstaedtler <ch@grml.org>  Tue, 04 Mar 2025 17:26:40 +0100
+
 grml-rescueboot (0.6.8) unstable; urgency=medium
 
   * [bb48d50] more workflow fixes
