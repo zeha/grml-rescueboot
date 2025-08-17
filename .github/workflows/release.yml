@@ -33,27 +33,36 @@ jobs:
             echo 'EOF'
           } >> "$GITHUB_OUTPUT"
 
-      - name: Get package build run ID
+      - name: Wait for and get package build run ID
         id: build-run
         uses: actions/github-script@v7
         with:
           script: |
-            const runs = await github.rest.actions.listWorkflowRuns({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              workflow_id: 'package-build.yml',
-              head_sha: context.sha,
-              status: 'completed',
-              conclusion: 'success'
-            });
+            const maxWaitTime = 10 * 60 * 1000; // 10 minutes
+            const pollInterval = 30 * 1000; // 30 seconds
+            const startTime = Date.now();
 
-            if (runs.data.workflow_runs.length === 0) {
-              throw new Error('No successful package-build run found for this commit');
+            while (Date.now() - startTime < maxWaitTime) {
+              const runs = await github.rest.actions.listWorkflowRuns({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                workflow_id: 'package-build.yml',
+                head_sha: context.sha,
+                status: 'completed',
+                conclusion: 'success'
+              });
+
+              if (runs.data.workflow_runs.length > 0) {
+                const runId = runs.data.workflow_runs[0].id;
+                console.log(`Found successful package-build run: ${runId}`);
+                return runId;
+              }
+
+              console.log('Package-build workflow not completed yet, waiting...');
+              await new Promise(resolve => setTimeout(resolve, pollInterval));
             }
 
-            const runId = runs.data.workflow_runs[0].id;
-            console.log(`Found package-build run: ${runId}`);
-            return runId;
+            throw new Error('Package-build workflow did not complete successfully within 10 minutes');
 
       - name: Download build artifacts
         uses: actions/download-artifact@v4
